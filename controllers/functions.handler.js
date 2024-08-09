@@ -65,16 +65,21 @@ const welcomeUser = () => {
     const chatId = msg.chat.id;
     const text = msg.text;
 
-    if (!userStates[chatId] || userStates[chatId] === 'waiting_for_welcome') {
-      // Send welcome message if this is the first message or after email validation
-      await bot.sendMessage(chatId, `"Bienvenido al ${channel.name},Prepárate para obtener los mejores pronósticos y maximizar tus ganancias."`);
-      await bot.sendMessage(chatId, `Por favor, envía tu email de usuario de Sharpods para verificar tu suscripción`);
-      
-      // Set user state to waiting for email
-      userStates[chatId] = 'waiting_for_email';
-    } else if (userStates[chatId] === 'waiting_for_email') {
-      // Validate email if the user state is waiting for email
-      await handleEmailValidation(chatId, text);
+    // Verificar si el mensaje proviene de un usuario individual
+    if (msg.chat.type === 'private') {
+      if (!userStates[chatId] || userStates[chatId] === 'waiting_for_welcome') {
+        // Enviar mensaje de bienvenida si este es el primer mensaje o después de la validación del correo
+        await bot.sendMessage(chatId, `"Bienvenido al ${channel.name}, Prepárate para obtener los mejores pronósticos y maximizar tus ganancias."`);
+        await bot.sendMessage(chatId, `Por favor, envía tu email de usuario de Sharpods para verificar tu suscripción`);
+        
+        // Establecer el estado del usuario a esperando el correo electrónico
+        userStates[chatId] = 'waiting_for_email';
+      } else if (userStates[chatId] === 'waiting_for_email') {
+        // Validar el correo electrónico si el estado del usuario es esperando el correo electrónico
+        await handleEmailValidation(chatId, text);
+      }
+    } else {
+      console.log(`Mensaje recibido de un chat de tipo: ${msg.chat.type}. Ignorando...`);
     }
   });
 };
